@@ -6,14 +6,14 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 
-
+// lire un csv
 
 public static class Program
 {
     private static void Main()
     {
         using (var reader = new StreamReader(@"F:\Laure\pokemon.csv"))
-        using (var csv = new CsvReader(new StreamReader(reader)))
+        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
             var config = csv.Configuration;
             config.HasHeaderRecord = true; // vrai si l'entête est présent
@@ -53,6 +53,78 @@ public static class Program
 
 // liste fichier csv
 // number,name,species,height,weight
-// 1,Bulbizarre,0.7,6.9
-// 2,Herbizarre,1.0,13.0
-// 3,Florizarre,2.0,100.0
+// 1,Bulbizarre,graine,0.7,6.9
+// 2,Herbizarre,graine,1.0,13.0
+// 3,Florizarre,graine,2.0,100.0
+
+
+// ecrire un csv
+
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.IO;
+
+internal class Pokemon
+{
+    public int    number  { get; set; }
+    public string name    { get; set; }
+    public string species { get; set; }
+    public float  height  { get; set; }
+    public float  weight  { get; set; }
+
+    public Pokemon
+    (
+        int    number  ,
+        string name    ,
+        string species ,
+        float  height  ,
+        float  weight
+    )
+    {
+        this.number  = number  ;
+        this.name    = name    ;
+        this.species = species ;
+        this.height  = height  ;
+        this.weight  = weight  ;
+    }
+}
+
+internal class PokemonTable : ClassMap<Pokemon>
+{
+    private PokemonTable()
+    {
+        Map( c => c.number  ).Index( 0 );
+        Map( c => c.name    ).Index( 1 );
+        Map( c => c.species ).Index( 2 );
+        Map( c => c.height  ).Index( 3 );
+        Map( c => c.weight  ).Index( 4 );
+    }
+}
+
+public static class Program
+{
+    private static void Main()
+    {
+        var list = new []
+        {
+            new Pokemon( 1, "Bulbizarre", "graine", 0.7f,   6.9f ),
+            new Pokemon( 2, "Herbizarre", "graine", 1.0f,  13.0f ),
+            new Pokemon( 3, "Florizarre", "graine", 2.0f, 100.0f ),
+        };
+
+        var path = "pokemon.csv";
+        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+        {
+            var config = csv.Configuration;
+            config.HasHeaderRecord = true; // Vrai si l'en-tête est présent
+            config.RegisterClassMap<PokemonTable>();
+
+            // Les délimiteurs peuvent être modifiés en onglets
+            //config.Delimiter = "\t";
+
+            csv.WriteRecords( list );
+        }
+    }
+}
+
+// http://baba-s.hatenablog.com/entry/2018/05/17/090000
