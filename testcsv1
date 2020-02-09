@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+
+
+
+public static class Program
+{
+    private static void Main()
+    {
+        using (var reader = new StreamReader(@"F:\Laure\pokemon.csv"))
+        using (var csv = new CsvReader(new StreamReader(reader)))
+        {
+            var config = csv.Configuration;
+            config.HasHeaderRecord = true; // vrai si l'entête est présent
+            config.RegisterClassMap<PokemonTable>();
+            var list = csv.GetRecords<Pokemon>();
+
+            foreach (var n in list)
+            {
+                Console.WriteLine($"{n.number}, {n.name}, {n.species}, {n.height}, {n.weight}");
+            }
+        }
+    }
+
+
+    internal class Pokemon
+    {
+        public int number { get; set; }
+        public string name { get; set; }
+        public string species { get; set; }
+        public float height { get; set; }
+        public float weight { get; set; }
+    }
+
+    internal class PokemonTable : ClassMap<Pokemon>
+    {
+        private PokemonTable()
+        {
+            Map(c => c.number).Index(0);
+            Map(c => c.name).Index(1);
+            Map(c => c.species).Index(2);
+            Map(c => c.height).Index(3);
+            Map(c => c.weight).Index(4);
+        }
+    }
+
+}
+
+// liste fichier csv
+// number,name,species,height,weight
+// 1,Bulbizarre,0.7,6.9
+// 2,Herbizarre,1.0,13.0
+// 3,Florizarre,2.0,100.0
